@@ -9,8 +9,9 @@
 # pub_date, title, venue, excerpt, citation, url_slug, paper_url, slides_url
 # - `excerpt`, `paper_url`, and slides_url can be blank, but the others must have values. 
 # - `pub_date` must be formatted as YYYY-MM-DD.
-# - `url_slug` will be the descriptive part of the .md file and the permalink URL for the page about the paper. 
-#    The .md file will be `YYYY-MM-DD-[url_slug].md` and the permalink will be `https://[yourdomain]/publications/YYYY-MM-DD-[url_slug]`
+# - `url_slug` identifies the collection file, `YYYY-MM-DD-[url_slug].md`.
+# - `paper_url` links to the publisher's article page (or arXiv abstract page).
+#   Collection records populate the list; individual publication pages are disabled.
 import csv
 import os
 import sys
@@ -32,13 +33,11 @@ HTML_ESCAPE_TABLE = {
     }
 
 # This is where the heavy lifting is done. This loops through all the rows in the TSV dataframe, then starts to
-# concatenate a big string (```md```) that contains the markdown for each type. It does the YAML metadata first, then
-# does the description for the individual page.
+# concatenate a big string (```md```) containing the metadata for each publication.
 def create_md(lines: list, layout: list):
     for item in lines:
         # Parse the filename information
         md_filename = f"{item[layout.index('pub_date')]}-{item[layout.index('url_slug')]}.md"
-        html_filename = str(item[layout.index('pub_date')]) + "-" + item[layout.index('url_slug')]
         
         # Parse the YAML variables
         md = f"---\ntitle: \"{item[layout.index('title')]}\"\n"
@@ -47,7 +46,6 @@ def create_md(lines: list, layout: list):
             md += f"\ncategory: {item[layout.index('category')]}"
         else:
             md += "\ncategory: manuscripts"
-        md += f"\npermalink: /publication/{html_filename}"
         if len(str(item[layout.index('excerpt')])) > 5:
             md += f"\nexcerpt: '{html_escape(item[layout.index('excerpt')])}'"
         md += f"\ndate: {item[layout.index('pub_date')]}"
@@ -55,14 +53,7 @@ def create_md(lines: list, layout: list):
         if len(str(item[layout.index('paper_url')])) > 5:
             md += f"\npaperurl: '{item[layout.index('paper_url')]}'"
         md += f"\ncitation: '{html_escape(item[layout.index('citation')])}'"
-        md += "\n---"
-        
-        # Markdown description for individual page
-        if len(str(item[layout.index('paper_url')])) > 5:
-            md += f"\n<a href='{item[layout.index('paper_url')]}'>Download paper here</a>\n"
-        if len(str(item[layout.index('excerpt')])) > 5:
-            md += f"\n{html_escape(item[layout.index('excerpt')])}\n"
-        md += f"\nRecommended citation: {item[layout.index('citation')]}"
+        md += "\n---\n"
         
         # Write the file
         md_filename = os.path.join("../_publications/", os.path.basename(md_filename))

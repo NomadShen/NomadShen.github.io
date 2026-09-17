@@ -11,7 +11,12 @@ volume/issue numbers, page ranges, and paper links follow the Scholar records.
 Publication dates use Scholar's dates, which may precede the journal issue year.
 Excerpts are short summaries of the descriptions, rather than complete abstracts.
 
-To regenerate the website's publication pages from the CSV, run:
+`paper_url` points to the publisher's article page, or the arXiv abstract page for
+preprints. Publication titles link directly to these pages. The collection has
+`output: false` in `_config.yml`, so it supplies the list without generating
+individual publication pages or sharing buttons.
+
+To regenerate the website's publication records from the CSV, run:
 
 ```sh
 cd markdown_generator
